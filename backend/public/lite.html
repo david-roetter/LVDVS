@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17221e">
+  <title>LVDVS · Chronicle</title>
+  <style>
+    :root{font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#17221e;background:#f3f0e7}
+    *{box-sizing:border-box}body{margin:0}button,input,select{font:inherit}button{cursor:pointer}button:disabled{opacity:.5;cursor:wait}
+    .top{height:73px;background:#17221e;color:#f4f0e7;display:flex;align-items:center;padding:0 30px;gap:13px}
+    .mark{font-family:Chronicle,Georgia,serif;font-size:24px;letter-spacing:2px}.crest{color:#c9a064;font-size:26px}
+    .version{font-size:11px;letter-spacing:2px;color:#c9a064;margin-left:13px}.verified{margin-left:auto;font-size:11px;letter-spacing:1.4px}
+    .verified b{color:#c9a064;font-size:17px;vertical-align:-1px;margin-right:6px}
+    .shell{display:flex;min-height:calc(100vh - 73px)}nav{background:#e9e8de;width:160px;flex-shrink:0;padding:24px 12px}
+    nav button{width:100%;border:0;background:transparent;text-align:left;padding:15px 17px;border-radius:10px;color:#506558;margin:2px 0}
+    nav button.active{background:#d6e0d3;color:#1c3028;font-weight:700}nav button span{margin-right:9px;font-size:18px}
+    main{flex:1;min-width:0}.content{max-width:1100px;margin:0 auto;padding:35px 32px 70px}
+    .eyebrow{font-size:11px;color:#a07237;letter-spacing:2.3px;font-weight:750}.title{font-family:Chronicle,Georgia,serif;font-weight:400;font-size:clamp(38px,5vw,54px);line-height:1.07;margin:10px 0}
+    .lead{color:#68796f;font-size:16px;margin:12px 0 31px}.panel{background:white;border:1px solid #deded4;border-radius:17px;padding:25px;margin:14px 0}
+    .panel h2{font:normal 25px Chronicle,Georgia,serif;margin:0 0 9px}.panel p{color:#6b796f;margin:5px 0 20px}
+    .dark{background:#17221e;color:#f4f0e7;border-color:#17221e}.dark p{color:#b9c9bb}.soft{background:#e5e9dd}
+    .button{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#243b32;color:#f7f4e9;border:1px solid #243b32;border-radius:8px;padding:13px 18px;font-weight:650;min-height:46px}
+    .button.alt{background:transparent;color:#243b32;border-color:#aebbb0}.dark .button.alt{color:#f4f0e7;border-color:#c9a064}
+    .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}.versus{display:flex;gap:24px;align-items:end;margin:23px 0 20px}.versus .field{flex:1;min-width:0}.vs{font:24px Chronicle,Georgia,serif;color:#c9a064;margin-bottom:11px}
+    label{display:block}.label{display:block;font-size:11px;color:#a07237;letter-spacing:1.6px;font-weight:750;margin:0 0 9px}
+    input,select{background:#fff;border:1px solid #bfc7ba;border-radius:7px;padding:13px 14px;width:100%;color:#17221e;min-height:49px}
+    input:focus,select:focus,button:focus-visible{outline:2px solid #c9a064;outline-offset:2px}
+    .hint{font-size:12px;color:#68796f;margin:11px 0 0}.stats{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
+    .metric{min-width:170px}.metric strong{display:block;color:#f4f0e7;font:32px Chronicle,Georgia,serif}.metric small{color:#c9a064;letter-spacing:1.5px;font-size:10px}
+    .card{display:flex;align-items:center;gap:18px}.badge{flex-shrink:0;display:grid;place-items:center;background:#243b32;color:#c9a064;border-radius:10px;width:55px;height:55px;font:21px Chronicle,Georgia,serif}
+    .card-info{flex:1;min-width:0}.card-info h2{margin:0 0 4px}.sub{font-size:12px;color:#6b796f}.record{font-weight:700;color:#243b32;white-space:nowrap}
+    .event{display:flex;gap:18px;align-items:start}.dot{color:#c9a064}.event .card-info h2{font-size:20px}.event button{margin-left:auto}
+    .inline{color:#243b32;border:0;background:transparent;text-decoration:underline;text-underline-offset:3px;padding:10px 0}
+    .notice{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);z-index:5;background:#17221e;color:#fff;padding:14px 22px;border-radius:9px;box-shadow:0 12px 35px #0004;max-width:min(90vw,650px)}
+    .loading{height:3px;background:#c9a064;position:absolute;top:73px;left:0;right:0;animation:pulse 1.2s infinite alternate}@keyframes pulse{to{opacity:.2}}
+    dialog{border:1px solid #d9dbd1;border-radius:16px;padding:28px;max-width:min(92vw,540px);width:100%;box-shadow:0 20px 80px #0005}dialog::backdrop{background:#17221eaa}
+    dialog h2{font:normal 27px Chronicle,Georgia,serif;margin:0 0 15px}dialog .field{margin-bottom:17px}dialog pre{font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere;max-height:50vh;overflow:auto}
+    .gate{max-width:540px;margin:9vh auto;padding:24px}.gate .lead{line-height:1.6}.gate .field{margin:28px 0 14px}
+    @media(max-width:820px){.version{display:none}.shell{display:block}nav{position:fixed;z-index:4;bottom:0;left:0;right:0;width:auto;height:68px;display:flex;padding:7px;background:#e9e8de;border-top:1px solid #d5d9ce}nav button{text-align:center;font-size:12px;padding:4px}nav button span{display:block;margin:0;font-size:19px}.content{padding:26px 19px 100px}.versus{flex-direction:column;align-items:stretch;gap:4px}.vs{text-align:center;margin:0}.verified{font-size:10px}.metric{min-width:90px}.top{padding:0 18px}}
+  </style>
+</head>
+<body>
+  <header class="top"><span class="crest">◇</span><span class="mark">LVDVS</span><span class="version">CHRONICLE / BETA 2.2.0</span><span class="verified" id="status"></span></header>
+  <div id="loading"></div>
+  <div class="shell"><nav id="nav"></nav><main id="app"></main></div>
+  <dialog id="modal"></dialog><div id="toast" aria-live="polite"></div>
+  <script>
+    const base = location.origin + '/api/game';
+    const key = 'lvdvs.session.' + encodeURIComponent(location.origin);
+    const $ = (selector) => document.querySelector(selector);
+    const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+    let token = localStorage.getItem(key), classes = [], state = null, page = 'arena', aId = '', bId = '', busy = false;
+    let toastTimer;
+    function notice(text) {
+      clearTimeout(toastTimer);
+      $('#toast').innerHTML = '<div class="notice">' + escapeHtml(text) + '</div>';
+      toastTimer = setTimeout(() => $('#toast').textContent = '', 5200);
+    }
+    function setBusy(value) { busy = value; $('#loading').innerHTML = value ? '<div class="loading"></div>' : ''; }
+    async function request(path, body, method) {
+      const response = await fetch(base + path, {method: method || (body === undefined ? 'GET' : 'POST'),
+        headers: {'Content-Type':'application/json', ...(token ? {'Authorization':'Bearer ' + token} : {})},
+        body: body === undefined ? undefined : JSON.stringify(body)});
+      let result;
+      try { result = await response.json(); } catch { throw new Error('The server returned an unexpected response.'); }
+      if (!response.ok) throw new Error(result.error || 'The request failed.');
+      return result;
+    }
+    async function connect(fresh = false) {
+      setBusy(true);
+      try {
+        classes = (await request('/classes')).classes;
+        if (fresh) { token = null; localStorage.removeItem(key); }
+        if (!token) state = null;
+        else state = await request('/state');
+        aId = state?.gladiators[0]?.id || ''; bId = state?.gladiators[1]?.id || '';
+      } catch (e) {
+        state = null;
+        notice(e.message + ' Use a recovery code or start a new session.');
+      } finally { setBusy(false); render(); }
+    }
+    async function createSession() {
+      setBusy(true);
+      try {
+        const created = await request('/session', {});
+        token = created.token; localStorage.setItem(key, token); delete created.token; state = created;
+        aId = ''; bId = ''; page = 'arena'; render();
+      } catch (e) { notice(e.message); }
+      finally { setBusy(false); }
+    }
+    async function act(path, body) {
+      if (busy) return null;
+      setBusy(true);
+      try {
+        const result = await request(path, body);
+        if (result.events) state = result;
+        render(); return result;
+      } catch (e) { notice(e.message); return null; }
+      finally { setBusy(false); }
+    }
+    const role = (id) => classes.find(c => c.id === id) || {name:'Unknown',symbol:'?',gear:''};
+    const fighter = (id) => state.gladiators.find(g => g.id === id);
+    const winner = (result) => result.winner_id === result.a.id ? result.a.name : result.b.name;
+    const eyebrow = (text) => '<div class="eyebrow">' + text + '</div>';
+    const header = (small, title, intro) => eyebrow(small) + '<h1 class="title">' + title + '</h1><p class="lead">' + intro + '</p>';
+    function render() {
+      $('#status').innerHTML = state?.verification?.valid
+        ? '<b>✓</b> ' + state.verification.count + ' EVENTS VERIFIED' : '';
+      $('#nav').innerHTML = state ? [['arena','♜','Arena'],['roster','♟','Roster'],['chronicle','▤','Chronicle']]
+        .map(([id,icon,label]) => '<button data-page="' + id + '" class="' + (page === id ? 'active' : '') + '"><span>' + icon + '</span>' + label + '</button>').join('') : '';
+      $('#app').innerHTML = !state ? gate() : '<div class="content">' +
+        (page === 'roster' ? rosterView() : page === 'chronicle' ? chronicleView() : arenaView()) + '</div>';
+    }
+    function gate() {
+      return '<div class="gate">' + header('THE GATES ARE OPEN','Your story begins in the arena.',
+        'Build a roster, resolve encounters, and keep a verifiable record of every moment.') +
+        '<div class="field"><label class="label">LUDUS SERVER</label><input value="' + escapeHtml(location.origin) + '" readonly></div>' +
+        '<button class="button" data-action="create">Create a new ludus</button>' +
+        '<div class="field" style="margin-top:28px"><label class="label">RECOVERY CODE</label><input id="recovery-code" autocomplete="off" spellcheck="false" placeholder="Paste a 64-character code"></div>' +
+        '<button class="button alt" data-action="recover">Reconnect</button>' +
+        '<p class="hint">The recovery code is the key to your Chronicle. Keep it private.</p></div>';
+    }
+    function selection(label, value, which) {
+      return '<label class="field"><span class="label">' + label + '</span><select data-selection="' + which + '">' +
+        state.gladiators.map(g => '<option value="' + g.id + '"' + (g.id === value ? ' selected' : '') + '>' +
+          escapeHtml(g.name) + ' · ' + escapeHtml(role(g.gladiator_class).name) + '</option>').join('') + '</select></label>';
+    }
+    function arenaView() {
+      const fighters = state.gladiators, results = state.encounters;
+      let output = header('THE TRAINING GROUND','The arena awaits.','Two names. One seed. A result you can replay and verify.');
+      if (fighters.length < 2) output += '<section class="panel"><h2>Bring your fighters into the light</h2><p>Create two gladiators to stage your first encounter.</p>' +
+        '<div class="actions"><button class="button" data-action="practice">⚡ Create a practice pair</button>' +
+        '<button class="button alt" data-action="recruit">＋ Recruit your own</button></div></section>';
+      else output += '<section class="panel">' + eyebrow('CHOOSE YOUR CONTENDERS') +
+        '<div class="versus">' + selection('I · FIRST CONTENDER',aId,'a') + '<span class="vs">VS</span>' +
+        selection('II · SECOND CONTENDER',bId,'b') + '</div>' +
+        '<label class="field"><span class="label">ENCOUNTER SEED · OPTIONAL</span>' +
+        '<input id="seed" maxlength="120" placeholder="Leave blank for a fresh seed"></label>' +
+        '<div class="actions"><button class="button" data-action="fight">⚔ Enter the arena</button></div>' +
+        '<p class="hint">Both fighters have an equal chance. A seed makes the result reproducible.</p></section>';
+      if (results.length) {
+        const last = results.at(-1);
+        output += '<section class="panel soft">' + eyebrow('LATEST ENCOUNTER · SIGNED') +
+          '<h2 style="margin-top:10px">' + escapeHtml(winner(last)) + ' claims the victory.</h2>' +
+          '<p>' + escapeHtml(last.a.name) + ' vs ' + escapeHtml(last.b.name) + '</p>' +
+          '<button class="button alt" data-action="replay" data-id="' + last.encounter_id + '">✓ Verify replay</button></section>';
+      }
+      return output + '<section class="panel dark stats">' +
+        [['GLADIATORS',fighters.length],['ENCOUNTERS',results.length],['CHRONICLE EVENTS',state.events.length]]
+        .map(([label,count]) => '<div class="metric"><strong>' + count + '</strong><small>' + label + '</small></div>').join('') +
+        '</section>';
+    }
+    function rosterView() {
+      let out = header('THE PEOPLE OF YOUR LUDUS','Your roster.','Five paths to the arena. Every gladiator joins your Chronicle.') +
+        '<button class="button" data-action="recruit"' + (state.gladiators.length >= 30 ? ' disabled' : '') + '>＋ Recruit gladiator</button>';
+      if (!state.gladiators.length) out += '<section class="panel">Your roster is empty. Recruit your first fighter.</section>';
+      for (const g of state.gladiators) {
+        const win = state.encounters.filter(e => e.winner_id === g.id).length;
+        const total = state.encounters.filter(e => e.a.id === g.id || e.b.id === g.id).length;
+        out += '<section class="panel card"><div class="badge">' + escapeHtml(role(g.gladiator_class).symbol) + '</div>' +
+          '<div class="card-info"><h2>' + escapeHtml(g.name) + '</h2><div class="sub">' + escapeHtml(role(g.gladiator_class).name) +
+          ' · ' + escapeHtml(role(g.gladiator_class).gear) + '</div></div><span class="record">' + win + ' W · ' + (total-win) + ' L</span></section>';
+      }
+      return out;
+    }
+    function chronicleView() {
+      let out = header('EVERY MOMENT HAS A PLACE','The Chronicle.','An ordered history linked by hashes, with signed outcomes you can replay.') +
+        '<section class="panel dark">' + eyebrow('CHRONICLE INTEGRITY') +
+        '<p>' + state.events.length + ' server-signed linked events · head ' + escapeHtml((state.verification.head || 'empty').slice(0,12)) + '…</p>' +
+        '<div class="actions"><button class="button alt" data-action="verify">✓ Verify all</button>' +
+        '<button class="button alt" data-action="tamper">⌕ Test tamper detection</button></div></section>' +
+        '<div class="actions"><button class="button alt" data-action="export">↓ Export history</button>' +
+        '<button class="button alt" data-action="access">⌘ Session access</button>' +
+        '<button class="button alt" data-action="commitment">◇ Commitment preview</button>' +
+        '<button class="button alt" data-action="checkin">✓ Check in</button></div>';
+      if (!state.events.length) out += '<section class="panel">Your Chronicle is empty. Recruit a gladiator to begin.</section>';
+      for (const e of [...state.events].reverse()) {
+        const title = e.type === 'gladiator.created' ? e.payload.name + ' joined the ludus' :
+          e.type === 'encounter.resolved' ? winner(e.payload) + ' won the encounter' : 'A visit was recorded';
+        out += '<section class="panel event"><span class="dot">●</span><div class="card-info"><h2>' + escapeHtml(title) + '</h2>' +
+          '<div class="sub">#' + (e.index + 1) + ' · ' + escapeHtml(e.type) + ' · ' + escapeHtml(e.timestamp) + '</div></div>' +
+          (e.type === 'encounter.resolved' ? '<button class="inline" data-action="replay" data-id="' + e.payload.encounter_id + '">Replay</button>' : '') + '</section>';
+      }
+      return out + '<button class="inline" data-action="new">＋ Start another ludus</button>';
+    }
+    function modal(title, content, actions) {
+      const box = $('#modal');
+      box.innerHTML = '<h2>' + title + '</h2>' + content + '<div class="actions">' + actions +
+        '<button class="button alt" data-action="close">Close</button></div>';
+      box.showModal();
+    }
+    async function handle(action, target) {
+      if (action === 'connect') return connect();
+      if (action === 'create') return createSession();
+      if (action === 'recover') {
+        const candidate = $('#recovery-code').value.trim().toLowerCase();
+        if (!/^[a-f0-9]{64}$/.test(candidate)) return notice('Enter a valid 64-character recovery code.');
+        token = candidate; localStorage.setItem(key, token); return connect();
+      }
+      if (action === 'close') return $('#modal').close();
+      if (action === 'new') {
+        if (state && !confirm('Create a new ludus? The current one remains accessible only with its private recovery code.')) return;
+        token = null; localStorage.removeItem(key); state = null; render(); return;
+      }
+      if (action === 'recruit') {
+        return modal('Recruit a gladiator','<label class="field"><span class="label">NAME</span><input id="new-name" maxlength="32" autofocus placeholder="e.g. Valeria"></label>' +
+          '<label class="field"><span class="label">CLASS</span><select id="new-class">' +
+          classes.map(c => '<option value="' + c.id + '">' + escapeHtml(c.name) + ' · ' + escapeHtml(c.gear) + '</option>').join('') +
+          '</select></label><p class="hint">Class is a story identity; every fighter has equal odds.</p>',
+          '<button class="button" data-action="save-fighter">Recruit</button>');
+      }
+      if (action === 'save-fighter') {
+        const name = $('#new-name').value.trim(), gladiator_class = $('#new-class').value;
+        const result = await act('/gladiators',{name,gladiator_class});
+        if (result) { $('#modal').close(); aId ||= state.gladiators[0].id; bId ||= state.gladiators[1]?.id || ''; render(); }
+        return;
+      }
+      if (action === 'practice') {
+        if (!await act('/gladiators',{name:'Aurelius',gladiator_class:'murmillo'})) return;
+        if (!await act('/gladiators',{name:'Cassius',gladiator_class:'thraex'})) return;
+        aId = state.gladiators.at(-2).id; bId = state.gladiators.at(-1).id; render(); return;
+      }
+      if (action === 'fight') {
+        if (!aId || !bId || aId === bId) return notice('Choose two different gladiators.');
+        const seed = $('#seed').value.trim() || String(Date.now()) + '-' + crypto.randomUUID();
+        const result = await act('/encounters',{a_id:aId,b_id:bId,seed,request_id:crypto.randomUUID()});
+        if (result) {
+          const latest = result.encounters.at(-1);
+          modal('The encounter is decided','<p><strong>' + escapeHtml(winner(latest)) + '</strong> claims the victory.</p>' +
+            '<p>' + escapeHtml(latest.a.name) + ' vs ' + escapeHtml(latest.b.name) + '</p>' +
+            '<pre>Seed: ' + escapeHtml(latest.seed_reveal) + '\nSignature: verified\nAlgorithm: ' + escapeHtml(latest.algorithm) + '</pre>',
+            '<button class="button" data-action="view-chronicle">View Chronicle</button>');
+        }
+        return;
+      }
+      if (action === 'view-chronicle') { $('#modal').close(); page = 'chronicle'; render(); return; }
+      if (action === 'replay') {
+        const result = await act('/replay',{encounter_id:target.dataset.id});
+        if (result) notice(result.valid ? 'Replay verified: signature and seed match the result.' : 'Replay verification failed.');
+        return;
+      }
+      if (action === 'verify' || action === 'tamper') {
+        if (action === 'tamper' && !state.events.length) return notice('Create a gladiator first.');
+        const copy = structuredClone(state.events);
+        if (action === 'tamper') copy[0].payload.name = 'Altered name';
+        const result = await act('/verify',{events:copy});
+        if (result) notice(action === 'tamper'
+          ? result.valid ? 'This alteration was not detected.' : 'Tampering detected at event ' + result.index + '. Saved history was not changed.'
+          : result.valid ? 'All ' + state.events.length + ' events verify.' : 'Verification failed at event ' + result.index + '.');
+        return;
+      }
+      if (action === 'checkin') {
+        if (await act('/check-in',{})) notice('Your visit was recorded.'); return;
+      }
+      if (action === 'export') {
+        const data = await act('/export'); if (!data) return;
+        const blob = new Blob([JSON.stringify(data,null,2)],{type:'application/json'});
+        const url = URL.createObjectURL(blob), link = document.createElement('a');
+        link.href = url; link.download = 'lvdvs-chronicle.json'; link.click();
+        setTimeout(() => URL.revokeObjectURL(url),1000); notice('Chronicle downloaded.'); return;
+      }
+      if (action === 'access') {
+        modal('Private session access','<p>This recovery code grants full access to your Chronicle. Store it privately; never post it publicly.</p>' +
+          '<pre id="access-code">' + escapeHtml(token) + '</pre>',
+          '<button class="button" data-action="copy-code">Copy code</button><button class="button alt" data-action="rotate-code">Rotate code</button><button class="button alt" data-action="delete-session">Delete session</button>');
+        return;
+      }
+      if (action === 'copy-code') {
+        try { await navigator.clipboard.writeText(token); notice('Recovery code copied.'); }
+        catch { notice('Copy was blocked. Select the code in this window and copy it manually.'); }
+        return;
+      }
+      if (action === 'rotate-code') {
+        if (!confirm('Rotate the recovery code? The previous code will stop working immediately.')) return;
+        const result = await act('/session/rotate',{});
+        if (result?.token) {
+          token = result.token; localStorage.setItem(key,token); delete result.token; state = result;
+          $('#modal').close(); notice('Recovery code rotated. Open Session access to copy the new code.'); render();
+        }
+        return;
+      }
+      if (action === 'delete-session') {
+        if (!confirm('Permanently delete this ludus and its Chronicle? This cannot be undone.')) return;
+        try {
+          const result = await request('/session', undefined, 'DELETE');
+          if (result.deleted) { token = null; state = null; localStorage.removeItem(key); $('#modal').close(); render(); notice('Session deleted.'); }
+        } catch (e) { notice(e.message); }
+        return;
+      }
+      if (action === 'commitment') {
+        const data = await act('/commitment'); if (!data) return;
+        modal('Commitment preview · dry run','<pre>' + escapeHtml(JSON.stringify(data,null,2)) + '</pre>',''); return;
+      }
+    }
+    document.addEventListener('click', (event) => {
+      const tab = event.target.closest('[data-page]');
+      if (tab) { page = tab.dataset.page; render(); return; }
+      const button = event.target.closest('[data-action]');
+      if (button && !button.disabled && !busy) handle(button.dataset.action,button);
+    });
+    document.addEventListener('change', (event) => {
+      if (event.target.dataset.selection === 'a') aId = event.target.value;
+      if (event.target.dataset.selection === 'b') bId = event.target.value;
+    });
+    connect();
+  </script>
+</body>
+</html>

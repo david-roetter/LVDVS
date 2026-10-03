@@ -1,0 +1,14 @@
+{
+  "ludus": {
+    "url": "https://ludus-chronicle.onrender.com/",
+    "version": "2.2.0"
+  },
+  "peachex": {
+    "symbol": "PCHX",
+    "payments_enabled": false,
+    "status": "awaiting_verified_deployment",
+    "chain_id": null,
+    "contract_address": null,
+    "merchant_address": null
+  }
+}
