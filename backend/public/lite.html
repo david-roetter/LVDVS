@@ -193,8 +193,8 @@
     }
     function peachExView() {
       const verified = peachExStatus.status === 'verified';
-      let out = header('OPTIONAL · PEACHEX','Your Chronicle, independently timestamped.',
-        'Prepare a signed proof without a wallet. An optional testnet anchor publishes only a Chronicle identifier, event number and hash. No PCHX purchase or token approval is needed.') +
+      let out = header('OPTIONAL · PEACHEX','Your Chronicle, ready for a public proof.',
+        (peachExStatus.demo ? 'Temporary integration preview: use a separate test session. ' : '') + 'Prepare a signed proof without a wallet. An optional testnet anchor publishes only a Chronicle identifier, event number and hash. No PCHX purchase or token approval is needed.') +
         '<section class="panel"><h2>' + (verified ? 'Verified testnet deployment' : 'Proof preparation is ready') + '</h2><p>' +
         (verified ? 'The server checked the configured chain, contract code and PCHX identity. Testnet gas is required only if you choose to publish.' :
           'No verified public testnet deployment is configured. You can prepare and export a proof; nothing will be sent to a blockchain.') + '</p>' +
