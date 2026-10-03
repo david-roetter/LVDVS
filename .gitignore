@@ -9,3 +9,7 @@ backend/data/
 *.key
 *.log
 coverage/
+contracts/peachex/out/
+contracts/peachex/cache/
+contracts/peachex/lib/
+contracts/peachex/broadcast/

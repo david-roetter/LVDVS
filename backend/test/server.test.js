@@ -36,6 +36,8 @@ test('browser, game API, recovery rotation, and protected endpoints work togethe
   assert.equal((await api('/api/admin/backup')).status, 401);
   assert.equal((await api('/api/assistant', { body: { message: 'Hello' } })).status, 503);
   assert.equal((await api('/api/game/state')).status, 401);
+  assert.equal((await api('/api/peachex/status')).body.payments_enabled, false);
+  assert.equal((await api('/api/game/peachex/prepare', {body:{}})).status, 401);
   const created = await api('/api/game/session', { method: 'POST' });
   assert.equal(created.status, 201);
   const token = created.body.token;
@@ -48,6 +50,11 @@ test('browser, game API, recovery rotation, and protected endpoints work togethe
   } });
   assert.equal(battle.status, 200);
   assert.equal(battle.body.verification.valid, true);
+  const prepared = await api('/api/game/peachex/prepare', { token, body:{} });
+  assert.equal(prepared.body.mode, 'dry-run');
+  assert.equal(prepared.body.transaction, null);
+  assert.equal(prepared.body.broadcast, false);
+  assert.equal(prepared.body.event_hash, '0x' + battle.body.verification.head);
   const exported = await api('/api/game/export', { token });
   assert.deepEqual(exported.body.events, battle.body.events);
   assert.match(exported.headers.get('content-disposition'), /lvdvs-chronicle.json/);

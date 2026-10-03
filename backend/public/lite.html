@@ -18,7 +18,7 @@
     main{flex:1;min-width:0}.content{max-width:1100px;margin:0 auto;padding:35px 32px 70px}
     .eyebrow{font-size:11px;color:#a07237;letter-spacing:2.3px;font-weight:750}.title{font-family:Chronicle,Georgia,serif;font-weight:400;font-size:clamp(38px,5vw,54px);line-height:1.07;margin:10px 0}
     .lead{color:#68796f;font-size:16px;margin:12px 0 31px}.panel{background:white;border:1px solid #deded4;border-radius:17px;padding:25px;margin:14px 0}
-    .panel h2{font:normal 25px Chronicle,Georgia,serif;margin:0 0 9px}.panel p{color:#6b796f;margin:5px 0 20px}
+    .panel code{overflow-wrap:anywhere}.panel h2{font:normal 25px Chronicle,Georgia,serif;margin:0 0 9px}.panel p{color:#6b796f;margin:5px 0 20px}
     .dark{background:#17221e;color:#f4f0e7;border-color:#17221e}.dark p{color:#b9c9bb}.soft{background:#e5e9dd}
     .button{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:#243b32;color:#f7f4e9;border:1px solid #243b32;border-radius:8px;padding:13px 18px;font-weight:650;min-height:46px}
     .button.alt{background:transparent;color:#243b32;border-color:#aebbb0}.dark .button.alt{color:#f4f0e7;border-color:#c9a064}
@@ -41,7 +41,7 @@
   </style>
 </head>
 <body>
-  <header class="top"><span class="crest">◇</span><span class="mark">LVDVS</span><span class="version">CHRONICLE / BETA 2.2.0</span><span class="verified" id="status"></span></header>
+  <header class="top"><span class="crest">◇</span><span class="mark">LVDVS</span><span class="version">CHRONICLE / BETA 2.3.0</span><span class="verified" id="status"></span></header>
   <div id="loading"></div>
   <div class="shell"><nav id="nav"></nav><main id="app"></main></div>
   <dialog id="modal"></dialog><div id="toast" aria-live="polite"></div>
@@ -51,6 +51,7 @@
     const $ = (selector) => document.querySelector(selector);
     const escapeHtml = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
     let token = localStorage.getItem(key), classes = [], state = null, page = 'arena', aId = '', bId = '', busy = false;
+    let peachExStatus = {status:'loading'}, peachExPrepared = null;
     let toastTimer;
     function notice(text) {
       clearTimeout(toastTimer);
@@ -70,8 +71,13 @@
     async function connect(fresh = false) {
       setBusy(true);
       try {
+        try {
+          const statusResponse = await fetch('/api/peachex/status');
+          if (!statusResponse.ok) throw new Error();
+          peachExStatus = await statusResponse.json();
+        } catch { peachExStatus = {status:'unavailable'}; }
         classes = (await request('/classes')).classes;
-        if (fresh) { token = null; localStorage.removeItem(key); }
+        if (fresh) { peachExPrepared = null; token = null; localStorage.removeItem(key); }
         if (!token) state = null;
         else state = await request('/state');
         aId = state?.gladiators[0]?.id || ''; bId = state?.gladiators[1]?.id || '';
@@ -107,10 +113,10 @@
     function render() {
       $('#status').innerHTML = state?.verification?.valid
         ? '<b>✓</b> ' + state.verification.count + ' EVENTS VERIFIED' : '';
-      $('#nav').innerHTML = state ? [['arena','♜','Arena'],['roster','♟','Roster'],['chronicle','▤','Chronicle']]
+      $('#nav').innerHTML = state ? [['arena','♜','Arena'],['roster','♟','Roster'],['chronicle','▤','Chronicle'],['peachex','◇','PeachEx']]
         .map(([id,icon,label]) => '<button data-page="' + id + '" class="' + (page === id ? 'active' : '') + '"><span>' + icon + '</span>' + label + '</button>').join('') : '';
       $('#app').innerHTML = !state ? gate() : '<div class="content">' +
-        (page === 'roster' ? rosterView() : page === 'chronicle' ? chronicleView() : arenaView()) + '</div>';
+        (page === 'roster' ? rosterView() : page === 'chronicle' ? chronicleView() : page === 'peachex' ? peachExView() : arenaView()) + '</div>';
     }
     function gate() {
       return '<div class="gate">' + header('THE GATES ARE OPEN','Your story begins in the arena.',
@@ -119,7 +125,8 @@
         '<button class="button" data-action="create">Create a new ludus</button>' +
         '<div class="field" style="margin-top:28px"><label class="label">RECOVERY CODE</label><input id="recovery-code" autocomplete="off" spellcheck="false" placeholder="Paste a 64-character code"></div>' +
         '<button class="button alt" data-action="recover">Reconnect</button>' +
-        '<p class="hint">The recovery code is the key to your Chronicle. Keep it private.</p></div>';
+        '<p class="hint">The recovery code is the key to your Chronicle. Keep it private.</p>' +
+        (peachExStatus.demo ? '<p class="hint">Integration preview: create a separate test ludus here. Demo saves may reset; keep your existing recovery code on the original game server.</p>' : '') + '</div>';
     }
     function selection(label, value, which) {
       return '<label class="field"><span class="label">' + label + '</span><select data-selection="' + which + '">' +
@@ -172,7 +179,7 @@
         '<button class="button alt" data-action="tamper">⌕ Test tamper detection</button></div></section>' +
         '<div class="actions"><button class="button alt" data-action="export">↓ Export history</button>' +
         '<button class="button alt" data-action="access">⌘ Session access</button>' +
-        '<button class="button alt" data-action="commitment">◇ Commitment preview</button>' +
+        '<button class="button alt" data-page="peachex">◇ PeachEx proofs</button>' +
         '<button class="button alt" data-action="checkin">✓ Check in</button></div>';
       if (!state.events.length) out += '<section class="panel">Your Chronicle is empty. Recruit a gladiator to begin.</section>';
       for (const e of [...state.events].reverse()) {
@@ -184,6 +191,23 @@
       }
       return out + '<button class="inline" data-action="new">＋ Start another ludus</button>';
     }
+    function peachExView() {
+      const verified = peachExStatus.status === 'verified';
+      let out = header('OPTIONAL · PEACHEX','Your Chronicle, independently timestamped.',
+        'Prepare a signed proof without a wallet. An optional testnet anchor publishes only a Chronicle identifier, event number and hash. No PCHX purchase or token approval is needed.') +
+        '<section class="panel"><h2>' + (verified ? 'Verified testnet deployment' : 'Proof preparation is ready') + '</h2><p>' +
+        (verified ? 'The server checked the configured chain, contract code and PCHX identity. Testnet gas is required only if you choose to publish.' :
+          'No verified public testnet deployment is configured. You can prepare and export a proof; nothing will be sent to a blockchain.') + '</p>' +
+        (verified ? '<p>Chain ' + escapeHtml(peachExStatus.chain_id) + ' · PCHX contract <code>' + escapeHtml(peachExStatus.token_address) + '</code></p>' : '') +
+        '<button class="button" data-action="peachex-prepare"' + (!state.events.length ? ' disabled' : '') + '>Prepare latest Chronicle proof</button>' +
+        (!state.events.length ? '<p class="hint">Recruit a gladiator or check in to record your first event.</p>' : '') + '</section>';
+      if (verified) out += '<section class="panel"><h2>Public PCHX balance</h2><p>Look up an address on the configured testnet. A balance lookup does not prove wallet ownership.</p>' +
+        '<label class="field"><span class="label">PUBLIC WALLET ADDRESS</span><input id="peachex-address" spellcheck="false" placeholder="0x…"></label>' +
+        '<div class="actions"><button class="button alt" data-action="peachex-balance">Check balance</button></div></section>';
+      return out + '<section class="panel"><h2>Check an existing anchor</h2><p>The server checks the contract event, block confirmations and matching signed Chronicle. A timestamp does not prove the publisher owns your wallet or that game rules are fair.</p>' +
+        '<label class="field"><span class="label">TRANSACTION HASH</span><input id="peachex-tx" spellcheck="false" placeholder="0x…"></label>' +
+        '<div class="actions"><button class="button alt" data-action="peachex-verify"' + (!verified ? ' disabled' : '') + '>Verify testnet anchor</button></div></section>';
+    }
     function modal(title, content, actions) {
       const box = $('#modal');
       box.innerHTML = '<h2>' + title + '</h2>' + content + '<div class="actions">' + actions +
@@ -191,17 +215,65 @@
       box.showModal();
     }
     async function handle(action, target) {
+      if (action === 'peachex-prepare') {
+        const data = await act('/peachex/prepare', {}); if (!data) return;
+        peachExPrepared = data;
+        modal(data.transaction ? 'Testnet proof ready' : 'Signed proof · no broadcast',
+          '<p>Event #' + (data.event_index + 1) + ' · <code>' + escapeHtml(data.event_hash) + '</code></p>' +
+          '<p>' + (data.transaction ? 'Publishing will reveal the identifier and hash publicly and consume testnet gas. Your wallet must confirm the transaction. No PCHX transfer or approval is requested.' :
+            'The proof is prepared locally by the game server. No verified testnet deployment is configured; no blockchain transaction will be requested.') + '</p>',
+          '<button class="button alt" data-action="peachex-export">Export signed proof</button>' +
+          (data.transaction ? '<button class="button" data-action="peachex-publish">Publish on testnet with wallet</button>' : ''));
+        return;
+      }
+      if (action === 'peachex-export') {
+        if (!peachExPrepared) return;
+        const url = URL.createObjectURL(new Blob([JSON.stringify(peachExPrepared,null,2)],{type:'application/json'}));
+        const link = document.createElement('a'); link.href = url; link.download = 'lvdvs-peachex-proof.json'; link.click();
+        setTimeout(() => URL.revokeObjectURL(url),1000); notice('Signed proof downloaded. No transaction was sent.'); return;
+      }
+      if (action === 'peachex-publish') {
+        if (!peachExPrepared?.transaction) return;
+        if (!window.ethereum?.request) return notice('Open this game in a browser with a wallet to publish a testnet proof.');
+        const transaction = peachExPrepared.transaction;
+        if (!confirm('Publish this Chronicle identifier and hash publicly on testnet chain ' + peachExPrepared.deployment.chain_id + '? Your wallet will request confirmation and testnet gas.')) return;
+        setBusy(true);
+        try {
+          const accounts = await window.ethereum.request({method:'eth_requestAccounts'});
+          const chain = await window.ethereum.request({method:'eth_chainId'});
+          if (BigInt(chain) !== BigInt(transaction.chainId)) throw Object.assign(new Error(),{userMessage:'Select the configured testnet in your wallet first.'});
+          if (!accounts?.[0]) throw Object.assign(new Error(),{userMessage:'No wallet account was selected.'});
+          const hash = await window.ethereum.request({method:'eth_sendTransaction',params:[{...transaction,from:accounts[0]}]});
+          if (!/^0x[a-fA-F0-9]{64}$/.test(hash)) throw new Error('The wallet did not return a transaction hash.');
+          $('#modal').close(); page = 'peachex'; render(); $('#peachex-tx').value = hash;
+          notice('Transaction submitted. Use Verify testnet anchor after confirmation; submission alone is not proof.');
+        } catch (error) { notice(error.userMessage || (error.code === 4001 ? 'Wallet request cancelled.' : 'The wallet transaction was not confirmed. Check your wallet before retrying.')); }
+        finally { setBusy(false); }
+        return;
+      }
+      if (action === 'peachex-balance') {
+        const address = $('#peachex-address').value.trim();
+        const result = await act('/peachex/balance',{address});
+        if (result) modal('Public PCHX balance','<p>' + escapeHtml(result.balance) + ' PCHX</p><p>Address: ' + escapeHtml(result.account) + '</p><p>Checked at block ' + result.checked_block + '. This does not prove wallet ownership.</p>','');
+        return;
+      }
+      if (action === 'peachex-verify') {
+        const transaction_hash = $('#peachex-tx').value.trim();
+        const result = await act('/peachex/verify',{transaction_hash});
+        if (result) modal(result.valid ? 'Confirmed Chronicle anchor' : 'Anchor not confirmed','<pre>' + escapeHtml(JSON.stringify(result,null,2)) + '</pre>','');
+        return;
+      }
       if (action === 'connect') return connect();
       if (action === 'create') return createSession();
       if (action === 'recover') {
         const candidate = $('#recovery-code').value.trim().toLowerCase();
         if (!/^[a-f0-9]{64}$/.test(candidate)) return notice('Enter a valid 64-character recovery code.');
-        token = candidate; localStorage.setItem(key, token); return connect();
+        peachExPrepared = null; token = candidate; localStorage.setItem(key, token); return connect();
       }
       if (action === 'close') return $('#modal').close();
       if (action === 'new') {
         if (state && !confirm('Create a new ludus? The current one remains accessible only with its private recovery code.')) return;
-        token = null; localStorage.removeItem(key); state = null; render(); return;
+        peachExPrepared = null; token = null; localStorage.removeItem(key); state = null; render(); return;
       }
       if (action === 'recruit') {
         return modal('Recruit a gladiator','<label class="field"><span class="label">NAME</span><input id="new-name" maxlength="32" autofocus placeholder="e.g. Valeria"></label>' +

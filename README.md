@@ -1,14 +1,16 @@
-# LVDVS · Ludus Chronicle 2.2
+# LVDVS · Ludus Chronicle 2.3
 
 Playable Chronicle backend and browser UI, plus the RoetterRobitics.com company site and PeachEx status page. The game records signed events, verifies encounters, and stores sessions on the server. Provider keys stay on the backend.
 
 ## Run locally
 
-Node.js 24 is required. There are no external runtime packages.
+Node.js 24 is required. Runtime blockchain reads use ethers; dependency versions are locked.
 
 ```sh
 git clone https://github.com/david-roetter/LVDVS.git
 cd LVDVS
+npm ci
+npm --prefix backend ci
 npm test
 npm start
 ```
@@ -35,7 +37,9 @@ AI is optional and disabled by default. To enable it, choose `gemini` or `gwdg`,
 
 ## PeachEx
 
-Payments remain disabled. No verified deployed token address, chain, merchant address, or checkout prices have been configured. The status page does not request wallet access. Chronicle commitments are dry runs and are not broadcast on a blockchain.
+PeachEx contracts, Genesis NFT and optional Chronicle anchoring are included with compiled local EVM tests. The new PeachEx tab exports signed proofs without a wallet. With a verified Sepolia configuration it can read PCHX balances, prepare an optional zero-value wallet transaction and check its confirmed receipt. No PCHX purchase, transfer or approval is required. Token sales and payments remain disabled.
+
+No verified public deployment is configured. The default is export only, with no broadcast. See [contracts/peachex/README.md](contracts/peachex/README.md) for contract behavior, tests, privacy and the separate wallet deployment/configuration steps. The integration preview is a separate temporary game; existing sessions stay on the original game server.
 
 ## Source history
 

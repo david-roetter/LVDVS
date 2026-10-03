@@ -1,4 +1,4 @@
-name: Verify Chronicle and company site
+name: Verify Chronicle, PeachEx contracts and company site
 on:
   push:
   pull_request:
@@ -12,5 +12,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - run: npm ci
+      - run: npm --prefix backend ci
       - run: npm test
+      - run: npm run build:contracts
       - run: npm run build

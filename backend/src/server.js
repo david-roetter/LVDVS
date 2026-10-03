@@ -7,6 +7,7 @@ import { randomUUID, timingSafeEqual } from 'node:crypto';
 import { askAi, hasAiProviderConfig, selectedProvider, ProviderError } from './providers/index.js';
 import { GameStore } from './game/store.js';
 import { CLASSES, gameError, verifyChronicle } from './game/domain.js';
+import { PeachExIntegration } from './integrations/peachex.js';
 
 const port = Number(process.env.PORT || 3000);
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || '*')
@@ -27,6 +28,7 @@ const getGameStore = () => {
 };
 const rateBuckets = new Map();
 let aiRequestsInFlight = 0;
+const peachEx = new PeachExIntegration();
 
 function boundedInteger(value, fallback, minimum, maximum) {
   const parsed = Number(value);
@@ -145,6 +147,7 @@ export const server = http.createServer(async (request, response) => {
     if (request.method === 'GET' && url.pathname === '/health') {
       return sendJson(response, 200, {
         status: 'ok',
+        version: '2.3.0',
         provider: selectedProvider(),
         configured: hasAiProviderConfig(),
         ai_enabled: aiEnabled()
@@ -153,6 +156,10 @@ export const server = http.createServer(async (request, response) => {
     if (request.method === 'GET' && url.pathname === '/ready') {
       await getGameStore().ready;
       return sendJson(response, 200, { status: 'ready', storage: 'available' });
+    }
+    if (request.method === 'GET' && url.pathname === '/api/peachex/status') {
+      enforceRateLimit(response, 'peachex-status:' + requestAddress(request), 20, 60_000);
+      return sendJson(response, 200, await peachEx.status());
     }
     if (request.method === 'GET' && url.pathname === '/api/admin/backup') {
       const accessToken = /^Bearer (.+)$/.exec(request.headers.authorization || '')?.[1];
@@ -186,6 +193,9 @@ export const server = http.createServer(async (request, response) => {
       if (request.method === 'POST') {
         const body = await readBody(request, url.pathname === '/api/game/verify' ? 2_000_000 : 10_000);
         if (!body || typeof body !== 'object' || Array.isArray(body)) throw gameError('Send a JSON object.');
+        if (url.pathname === '/api/game/peachex/prepare') return sendJson(response, 200, await peachEx.prepare(await store.state(token), body.event_index));
+        if (url.pathname === '/api/game/peachex/verify') return sendJson(response, 200, await peachEx.verify(await store.state(token), body.transaction_hash));
+        if (url.pathname === '/api/game/peachex/balance') { await store.read(token); return sendJson(response, 200, await peachEx.balance(body.address)); }
         if (url.pathname === '/api/game/session/rotate') return sendJson(response, 200, await store.rotateSession(token));
         if (url.pathname === '/api/game/gladiators') return sendJson(response, 201, await store.createGladiator(token, body));
         if (url.pathname === '/api/game/encounters') return sendJson(response, 200, await store.encounter(token, body));
