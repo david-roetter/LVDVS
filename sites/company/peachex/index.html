@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>PeachEx und Ludus · Rötter Robitics</title>
-  <meta name="description" content="PeachEx und die geplante Ludus-Anbindung: aktueller Status, Token-Projekt und das spielbare Chronicle-Spiel.">
+  <meta name="description" content="PeachEx und die Ludus-Anbindung: aktueller Status, Token-Projekt und das spielbare Chronicle-Spiel.">
   <link rel="canonical" href="https://roetterrobitics.com/peachex/">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/style.css">
@@ -26,9 +26,10 @@
     <div class="wrap hero">
       <p class="eyebrow">PeachEx · PCHX</p>
       <h1 data-i="title">PeachEx und Ludus.</h1>
-      <p class="lede" data-i="lead">Ein Token-Projekt neben einem spielbaren Spiel. Hier findest du den aktuellen Stand der Verbindung.</p>
+      <p class="lede" data-i="lead">PeachEx ist im Ludus-Code angebunden. Probiere signierte Chronicle-Nachweise in der separaten Testvorschau aus.</p>
       <div class="cta">
-        <a class="btn pri" href="/ludus/" data-i="play">Ludus Chronicle spielen</a>
+        <a class="btn pri" href="https://lvdvs-peachex-preview.onrender.com/" data-i="preview">PeachEx in Ludus testen</a>
+        <a class="btn" href="/ludus/" data-i="play">Bestehendes Ludus-Spiel</a>
         <a class="btn" href="/" data-i="back">Zur Startseite</a>
       </div>
     </div>
@@ -42,31 +43,31 @@
           <a class="link" href="/ludus/" data-i="open">Im Browser öffnen →</a>
         </article>
         <article class="card">
-          <span class="pill" data-i="development">In Entwicklung</span>
+          <span class="pill" data-i="development">Verträge getestet</span>
           <h3>PeachEx</h3>
-          <p data-i="token">Der vorliegende Quellcode beschreibt PeachEx als ERC-20-Token mit dem Kürzel PCHX und einer festen Menge von 100 Millionen Token. Das beschreibt den Code, keine bestätigte Bereitstellung auf einer Blockchain.</p>
+          <p data-i="token">PCHX ist ein ERC-20-Token mit 100 Millionen Token bei Bereitstellung; durch Verbrennen kann die Menge sinken. Token, Genesis-NFT und Chronicle-Vertrag sind lokal getestet. Eine öffentliche Blockchain-Bereitstellung ist noch nicht konfiguriert.</p>
         </article>
         <article class="card">
-          <span class="pill" data-i="disabled">Zahlungen noch nicht aktiv</span>
+          <span class="pill" data-i="disabled">Optionale Chronicle-Nachweise</span>
           <h3 data-i="payments">PeachEx in Ludus</h3>
-          <p data-i="paymentinfo">Für Token-Zahlungen fehlen bestätigte Angaben zu Netzwerk, Token-Vertrag und Empfänger sowie ein geprüfter Ablauf zur Zahlungsbestätigung. Auf dieser Website kannst du derzeit keine PeachEx-Token kaufen oder als Zahlung einsetzen.</p>
+          <p data-i="paymentinfo">In der Testvorschau kannst du signierte Chronicle-Nachweise als JSON exportieren. Nach einer geprüften Testnetz-Bereitstellung sind freiwillige Hash-Verankerung und PCHX-Guthabenabfrage vorgesehen. PeachEx wird nicht verkauft; Zahlungen bleiben deaktiviert.</p>
         </article>
       </div>
-      <p class="sub" data-i="free">Du brauchst keine Wallet und keine Token, um Ludus Chronicle auszuprobieren.</p>
+      <p class="sub" data-i="free">Du brauchst keine Wallet und keine Token. Die Vorschau verwendet eigene, vorübergehende Spielstände. Nutze dort einen neuen Test-Spielstand und behalte deinen bestehenden Wiederherstellungscode auf dem bisherigen Ludus-Server.</p>
     </section>
   </main>
   <footer class="wrap"><a href="/impressum.html">Impressum</a> · <a href="/datenschutz.html" data-i="privacy">Datenschutz</a></footer>
   <script>
     (() => {
       const en = {
-        offers:'Offers',title:'PeachEx and Ludus.',lead:'A token project alongside a playable game. Here is the current status of their connection.',
-        play:'Play Ludus Chronicle',back:'Back to the homepage',status:'What works today',
+        offers:'Offers',title:'PeachEx and Ludus.',lead:'PeachEx is integrated into the Ludus code. Try signed Chronicle proofs in the separate integration preview.',
+        preview:'Try PeachEx in Ludus',play:'Existing Ludus game',back:'Back to the homepage',status:'What works today',
         game:'Create gladiators, resolve encounters and verify the signed events in your Chronicle. The game runs on the existing Ludus server, where your recovery code stays valid.',
-        open:'Open in your browser →',development:'In development',
-        token:'The available source describes PeachEx as an ERC-20 token with the symbol PCHX and a fixed supply of 100 million tokens. This describes the code, not a confirmed blockchain deployment.',
-        disabled:'Payments not yet active',payments:'PeachEx in Ludus',
-        paymentinfo:'Token payments still need a confirmed network, token contract, recipient and a verified payment confirmation flow. You cannot currently buy PeachEx tokens or use them to pay on this website.',
-        free:'You do not need a wallet or tokens to try Ludus Chronicle.',privacy:'Privacy'
+        open:'Open in your browser →',development:'Contracts tested',
+        token:'PCHX is an ERC-20 token with an initial supply of 100 million; burning can reduce it. Token, Genesis NFT and Chronicle anchor have local EVM tests. A public blockchain deployment has not been configured.',
+        disabled:'Optional Chronicle proofs',payments:'PeachEx in Ludus',
+        paymentinfo:'Export signed Chronicle proofs as JSON in the preview. Once a testnet deployment is verified, optional hash anchoring and public PCHX balance reads can be enabled. PeachEx is not for sale; payments remain disabled.',
+        free:'No wallet or tokens are required. The preview has separate temporary saves. Start a new test session there and keep your existing recovery code on the original Ludus server.',privacy:'Privacy'
       };
       const nodes = [...document.querySelectorAll('[data-i]')];
       const de = Object.fromEntries(nodes.map(n => [n.dataset.i, n.textContent]));

@@ -9,6 +9,10 @@
     "status": "awaiting_verified_deployment",
     "chain_id": null,
     "contract_address": null,
-    "merchant_address": null
+    "merchant_address": null,
+    "token_sales": false,
+    "anchoring_supported": true,
+    "integration_version": "2.3.0",
+    "integration_preview_url": "https://lvdvs-peachex-preview.onrender.com/"
   }
 }

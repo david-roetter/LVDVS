@@ -1,11 +1,21 @@
 {
   "name": "lvdvs",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "private": true,
-  "engines": { "node": ">=24 <25" },
+  "engines": {
+    "node": ">=24 <25"
+  },
   "scripts": {
     "start": "npm --prefix backend start",
-    "test": "npm --prefix backend test",
-    "build": "node sites/company/build.mjs"
+    "test": "npm --prefix backend test && npm run test:contracts",
+    "build": "node sites/company/build.mjs",
+    "build:contracts": "node contracts/peachex/build.mjs",
+    "test:contracts": "node --test contracts/peachex/test/*.test.mjs"
+  },
+  "devDependencies": {
+    "@foundry-rs/anvil": "1.7.1",
+    "@openzeppelin/contracts": "5.7.0",
+    "ethers": "6.17.0",
+    "solc": "0.8.30"
   }
 }
