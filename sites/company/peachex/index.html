@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>PeachEx und Ludus · Rötter Robitics</title>
+  <meta name="description" content="PeachEx und die geplante Ludus-Anbindung: aktueller Status, Token-Projekt und das spielbare Chronicle-Spiel.">
+  <link rel="canonical" href="https://roetterrobitics.com/peachex/">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <a class="skip" href="#inhalt">Zum Inhalt / Skip to content</a>
+  <header class="wrap top">
+    <a class="brand" href="/">Rötter Robitics</a>
+    <nav class="nav" aria-label="Navigation">
+      <a href="/ludus/">Ludus</a>
+      <a href="/#angebote" data-i="offers">Angebote</a>
+      <span class="lang" role="group" aria-label="Sprache / Language">
+        <button type="button" data-set="de" aria-pressed="true">DE</button>
+        <button type="button" data-set="en" aria-pressed="false">EN</button>
+      </span>
+    </nav>
+  </header>
+  <main id="inhalt">
+    <div class="wrap hero">
+      <p class="eyebrow">PeachEx · PCHX</p>
+      <h1 data-i="title">PeachEx und Ludus.</h1>
+      <p class="lede" data-i="lead">Ein Token-Projekt neben einem spielbaren Spiel. Hier findest du den aktuellen Stand der Verbindung.</p>
+      <div class="cta">
+        <a class="btn pri" href="/ludus/" data-i="play">Ludus Chronicle spielen</a>
+        <a class="btn" href="/" data-i="back">Zur Startseite</a>
+      </div>
+    </div>
+    <section class="wrap">
+      <h2 data-i="status">Was heute funktioniert</h2>
+      <div class="grid projects">
+        <article class="card">
+          <span class="pill live">Ludus · Beta 2.2.0</span>
+          <h3>Chronicle</h3>
+          <p data-i="game">Erstelle Gladiatoren, spiele Begegnungen und prüfe die signierten Einträge deiner Chronicle. Das Spiel läuft auf dem bestehenden Ludus-Server; dein Wiederherstellungscode bleibt dort gültig.</p>
+          <a class="link" href="/ludus/" data-i="open">Im Browser öffnen →</a>
+        </article>
+        <article class="card">
+          <span class="pill" data-i="development">In Entwicklung</span>
+          <h3>PeachEx</h3>
+          <p data-i="token">Der vorliegende Quellcode beschreibt PeachEx als ERC-20-Token mit dem Kürzel PCHX und einer festen Menge von 100 Millionen Token. Das beschreibt den Code, keine bestätigte Bereitstellung auf einer Blockchain.</p>
+        </article>
+        <article class="card">
+          <span class="pill" data-i="disabled">Zahlungen noch nicht aktiv</span>
+          <h3 data-i="payments">PeachEx in Ludus</h3>
+          <p data-i="paymentinfo">Für Token-Zahlungen fehlen bestätigte Angaben zu Netzwerk, Token-Vertrag und Empfänger sowie ein geprüfter Ablauf zur Zahlungsbestätigung. Auf dieser Website kannst du derzeit keine PeachEx-Token kaufen oder als Zahlung einsetzen.</p>
+        </article>
+      </div>
+      <p class="sub" data-i="free">Du brauchst keine Wallet und keine Token, um Ludus Chronicle auszuprobieren.</p>
+    </section>
+  </main>
+  <footer class="wrap"><a href="/impressum.html">Impressum</a> · <a href="/datenschutz.html" data-i="privacy">Datenschutz</a></footer>
+  <script>
+    (() => {
+      const en = {
+        offers:'Offers',title:'PeachEx and Ludus.',lead:'A token project alongside a playable game. Here is the current status of their connection.',
+        play:'Play Ludus Chronicle',back:'Back to the homepage',status:'What works today',
+        game:'Create gladiators, resolve encounters and verify the signed events in your Chronicle. The game runs on the existing Ludus server, where your recovery code stays valid.',
+        open:'Open in your browser →',development:'In development',
+        token:'The available source describes PeachEx as an ERC-20 token with the symbol PCHX and a fixed supply of 100 million tokens. This describes the code, not a confirmed blockchain deployment.',
+        disabled:'Payments not yet active',payments:'PeachEx in Ludus',
+        paymentinfo:'Token payments still need a confirmed network, token contract, recipient and a verified payment confirmation flow. You cannot currently buy PeachEx tokens or use them to pay on this website.',
+        free:'You do not need a wallet or tokens to try Ludus Chronicle.',privacy:'Privacy'
+      };
+      const nodes = [...document.querySelectorAll('[data-i]')];
+      const de = Object.fromEntries(nodes.map(n => [n.dataset.i, n.textContent]));
+      function setLanguage(lang) {
+        const copy = lang === 'en' ? en : de;
+        nodes.forEach(n => { n.textContent = copy[n.dataset.i]; });
+        document.documentElement.lang = lang;
+        document.querySelectorAll('[data-set]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.set === lang)));
+      }
+      document.querySelectorAll('[data-set]').forEach(b => b.addEventListener('click', () => setLanguage(b.dataset.set)));
+      const lang = new URLSearchParams(location.search).get('lang');
+      setLanguage(lang === 'en' || (!lang && !/^de/i.test(navigator.language)) ? 'en' : 'de');
+    })();
+  </script>
+</body>
+</html>

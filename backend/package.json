@@ -1,0 +1,9 @@
+{
+  "name": "ludus-backend",
+  "version": "2.2.0",
+  "private": true,
+  "description": "Ludus backend using the PeaceGPT-style backend-only AI architecture",
+  "type": "module",
+  "engines": { "node": ">=24 <25" },
+  "scripts": { "start": "node src/server.js", "test": "node --test" }
+}

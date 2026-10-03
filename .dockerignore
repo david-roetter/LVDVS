@@ -1,0 +1,9 @@
+.git
+node_modules
+public
+backend/data
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+coverage

@@ -1,0 +1,11 @@
+# Company-site preview. The existing Chronicle backend keeps its current origin.
+# Production cutover: update the EXISTING hub as documented in sites/company/README.md.
+services:
+  - type: web
+    name: roetterrobitics-lvdvs-preview
+    runtime: static
+    repo: https://github.com/david-roetter/LVDVS
+    branch: main
+    buildCommand: node sites/company/build.mjs
+    staticPublishPath: public
+    autoDeployTrigger: commit
