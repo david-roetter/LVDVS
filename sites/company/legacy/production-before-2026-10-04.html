@@ -37,7 +37,7 @@
   <p class="lede" data-i="lede">Ich bin David Rötter. Hier siehst du, was du bei mir buchen kannst, was du sofort ausprobieren kannst und woran ich gerade baue.</p>
   <div class="cta">
     <a class="btn pri" href="#angebote" data-i="cta1">Angebote ansehen</a>
-    <a class="btn" href="/ludus/" rel="noopener" data-i="cta2">LVDVS im Browser spielen · Beta 2.2.0</a>
+    <a class="btn" href="https://ludus-chronicle.onrender.com" rel="noopener" data-i="cta2">LVDVS im Browser spielen · Beta 2.2.0</a>
   </div>
   <svg class="roots" viewBox="0 0 400 300" aria-hidden="true">
     <path d="M300 0v60c0 40-50 50-70 90s-10 80-50 110M300 60c0 50 40 60 50 110s-10 80 10 130M300 60c-10 60 0 110-10 160s-30 60-30 80M230 150c-40 10-70 0-110 30s-50 70-90 90M350 170c20 20 40 20 50 50M290 220c30 20 40 40 70 60M180 260c-30 0-50 20-80 40"/>
@@ -113,8 +113,8 @@
       <article class="card">
         <span class="pill live" data-i="p1_tag">Beta 2.2.0</span>
         <h3>LVDVS</h3>
-        <p data-i="p1_p">Baue deinen Kader auf, bestreite reproduzierbare Begegnungen und prüfe die signierten Einträge deiner Chronicle. Fünf Gladiatorenklassen stehen bereit.</p>
-        <div class="actions"><a class="link" href="/ludus/" rel="noopener" data-i="p1_c">Im Browser spielen →</a></div>
+        <p data-i="p1_p">Führe eine Gladiatorenschule durch eine Saison von 24 Wochen. Drei Kämpfer, fünf Klassen – und der Unterhalt läuft weiter, ob du gewinnst oder nicht.</p>
+        <div class="actions"><a class="link" href="https://ludus-chronicle.onrender.com" rel="noopener" data-i="p1_c">Im Browser spielen →</a></div>
       </article>
 
       <article class="card">
@@ -166,10 +166,9 @@
       </article>
 
       <article class="card">
-        <span class="pill" data-i="p8_tag">Ludus-Anbindung · Beta 2.3.0</span>
+        <span class="pill" data-i="p8_tag">In Vorbereitung</span>
         <h3>PeachEx</h3>
-        <p data-i="p8_p">PeachEx ist im Ludus-Code angebunden: signierte Chronicle-Nachweise exportieren und optional im Testnetz verankern. Die separate Vorschau nutzt vorübergehende Spielstände. Kein Token-Verkauf und keine Token-Zahlungen.</p>
-        <div class="actions"><a class="link" href="https://lvdvs-peachex-preview.onrender.com/" data-i="p8_try">PeachEx in Ludus testen →</a><a class="link" href="/peachex/" data-i="p8_c">Status und Details →</a></div>
+        <p data-i="p8_p">Ein Token-Experiment rund um Rötter Robitics. Derzeit nicht erhältlich: kein Verkauf und kein Investmentangebot.</p>
       </article>
     </div>
   </div>
@@ -222,15 +221,14 @@
     o_note:"All prices are final prices in euros.",
     p_h:"What I'm building",
     p_sub:"My own projects, at different stages. Anything marked as a prototype runs on demo data.",
-    p1_tag:"Beta 2.2.0",p1_p:"Build your roster, replay encounters and verify the signed events in your Chronicle. Choose from five gladiator classes.",p1_c:"Play in your browser →",
+    p1_tag:"Beta 2.2.0",p1_p:"Run a gladiator school through a 24-week season. Three fighters, five classes – and upkeep is due whether you win or not.",p1_c:"Play in your browser →",
     p2_tag:"Preview",p2_p:"Conversations between people, accompanied by AI under rules you set yourselves – with one switch that turns every AI feature off.",
     p3_tag:"Demo",p3_p:"Checks whether a source really supports what is claimed. Meant as a source-criticism tool for study and teaching.",
     p4_tag:"Prototype",p4_p:"A map for mutual aid. Whoever needs something decides who may help. Starts in Bonn and stays non-commercial on purpose.",
     p5_tag:"In development",p5_p:"A calm place for better questions: what do we know, what are we assuming, and what would a useful next step look like?",
     p6_tag:"Novel in progress",p6_p:"A hacker group releases 22 years of surveillance data – in three waves: first the state, then the corporations, then all of us.",p6_c:"Ask for a sample",
     p7_tag:"Music",p7_p:"Songs with acoustic guitar. The current single is called “I wish you knew”.",p7_c:"Listen on Spotify →",
-    p8_tag:"Ludus integration · Beta 2.3.0",p8_p:"PeachEx is integrated into the Ludus code: export signed Chronicle proofs and optionally anchor them on testnet. The separate preview uses temporary saves. No token sales or token payments.",
-    p8_try:"Try PeachEx in Ludus →",p8_c:"Status and details →",
+    p8_tag:"In preparation",p8_p:"A token experiment around Rötter Robitics. Not available at present: no sale and no investment offer.",
     more:"Project page →",pilot:"Ask about a pilot",
     a_h:"About",
     a_1:"Computer scientist and trained industrial clerk from Bonn. I build small, honest software and explain it so that you can work with it.",
@@ -246,14 +244,11 @@
     nodes.forEach(function(n){var k=n.getAttribute("data-i");if(k in d)n.innerHTML=d[k];});
     HREF.forEach(function(h){h[0].setAttribute("href",l==="en"?h[2]:h[1]);});
     document.documentElement.lang=l;
-    try { localStorage.setItem("roetterrobitics.language",l); } catch (_) {}
     [].slice.call(document.querySelectorAll(".lang button")).forEach(function(b){b.setAttribute("aria-pressed",String(b.getAttribute("data-set")===l));});
   }
   [].slice.call(document.querySelectorAll(".lang button")).forEach(function(b){b.addEventListener("click",function(){set(b.getAttribute("data-set"));});});
   var q=/[?&]lang=(en|de)/.exec(location.search);
-  var saved;
-  try { saved=localStorage.getItem("roetterrobitics.language"); } catch (_) {}
-  set(q?q[1]:(saved==="de"||saved==="en")?saved:/^de/i.test(navigator.language||"de")?"de":"en");
+  if(q)set(q[1]);else if(!/^de/i.test(navigator.language||"de"))set("en");
 })();
 </script>
 </body>
