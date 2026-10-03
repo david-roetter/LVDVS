@@ -74,11 +74,14 @@
         const copy = lang === 'en' ? en : de;
         nodes.forEach(n => { n.textContent = copy[n.dataset.i]; });
         document.documentElement.lang = lang;
+        try { localStorage.setItem('roetterrobitics.language', lang); } catch (_) {}
         document.querySelectorAll('[data-set]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.set === lang)));
       }
       document.querySelectorAll('[data-set]').forEach(b => b.addEventListener('click', () => setLanguage(b.dataset.set)));
       const lang = new URLSearchParams(location.search).get('lang');
-      setLanguage(lang === 'en' || (!lang && !/^de/i.test(navigator.language)) ? 'en' : 'de');
+      let saved;
+      try { saved = localStorage.getItem('roetterrobitics.language'); } catch (_) {}
+      setLanguage(['de', 'en'].includes(lang) ? lang : ['de', 'en'].includes(saved) ? saved : /^de/i.test(navigator.language) ? 'de' : 'en');
     })();
   </script>
 </body>

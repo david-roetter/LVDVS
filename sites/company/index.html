@@ -246,11 +246,14 @@
     nodes.forEach(function(n){var k=n.getAttribute("data-i");if(k in d)n.innerHTML=d[k];});
     HREF.forEach(function(h){h[0].setAttribute("href",l==="en"?h[2]:h[1]);});
     document.documentElement.lang=l;
+    try { localStorage.setItem("roetterrobitics.language",l); } catch (_) {}
     [].slice.call(document.querySelectorAll(".lang button")).forEach(function(b){b.setAttribute("aria-pressed",String(b.getAttribute("data-set")===l));});
   }
   [].slice.call(document.querySelectorAll(".lang button")).forEach(function(b){b.addEventListener("click",function(){set(b.getAttribute("data-set"));});});
   var q=/[?&]lang=(en|de)/.exec(location.search);
-  if(q)set(q[1]);else if(!/^de/i.test(navigator.language||"de"))set("en");
+  var saved;
+  try { saved=localStorage.getItem("roetterrobitics.language"); } catch (_) {}
+  set(q?q[1]:(saved==="de"||saved==="en")?saved:/^de/i.test(navigator.language||"de")?"de":"en");
 })();
 </script>
 </body>
