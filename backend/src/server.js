@@ -154,8 +154,10 @@ export const server = http.createServer(async (request, response) => {
       });
     }
     if (request.method === 'GET' && url.pathname === '/ready') {
-      await getGameStore().ready;
-      return sendJson(response, 200, { status: 'ready', storage: 'available' });
+      const store = getGameStore();
+      await store.ready;
+      // Public-key fingerprint only, so operators can confirm a migration kept the same key.
+      return sendJson(response, 200, { status: 'ready', storage: 'available', signing_key: store.signingKeyInfo() });
     }
     if (request.method === 'GET' && url.pathname === '/api/peachex/status') {
       enforceRateLimit(response, 'peachex-status:' + requestAddress(request), 20, 60_000);

@@ -31,7 +31,7 @@ See [sites/company/README.md](sites/company/README.md) for the existing producti
 
 ## Production backend
 
-The Docker image uses Node 24 and includes the playable browser UI. Mount persistent storage at `/data`; production requires `LUDUS_DATA_DIR`. Preserve both session files and `signing-key.pem` when migrating. See [FLY_DEPLOY.md](FLY_DEPLOY.md) for optional Fly.io hosting. Keep the existing Render game until its storage and origin migration have been planned.
+The Docker image uses Node 24 and includes the playable browser UI. Mount persistent storage at `/data`; production requires `LUDUS_DATA_DIR`. Provide the signing key through `LUDUS_SIGNING_KEY` (base64 PEM) so it survives a lost disk, and set `LUDUS_REQUIRE_SIGNING_KEY=true` in production. Preserve session files when migrating. See [MIGRATION.md](MIGRATION.md) for moving the live Render game to a paid instance with a disk. See [FLY_DEPLOY.md](FLY_DEPLOY.md) for optional Fly.io hosting. Keep the existing Render game until its storage and origin migration have been planned.
 
 AI is optional and disabled by default. To enable it, choose `gemini` or `gwdg`, configure that provider's server secrets, set `LUDUS_AI_ENABLED=true`, and provide `LUDUS_AI_ACCESS_TOKEN`. The ordinary game UI does not need provider credentials. `/api/admin/backup` requires a separate `LUDUS_BACKUP_TOKEN`; its response contains the signing key and must remain private.
 

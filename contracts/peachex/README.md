@@ -21,28 +21,47 @@ npm test
 npm run build:contracts
 ```
 
-Artifacts are generated in `contracts/peachex/out/` and excluded from Git. Tests compile the actual Solidity, deploy all three contracts to an isolated local Anvil chain, exercise transfers, burns, permit/replay protection, Genesis metadata, monotonic anchoring, and authenticated Ludus HTTP receipt verification. They also check code fingerprint mismatches, confirmations, unrelated receipts and dry-run exports. These tests send no public-chain transactions. The older Foundry unit tests are retained but are not part of `npm test`.
+Artifacts are generated in `contracts/peachex/out/` and excluded from Git. `test/deploy.test.mjs` runs the Sepolia deploy script against local chains: simulation sends nothing, non-Sepolia chains are refused, the Etherscan input recompiles to identical bytecode, and the script and backend contain no transfer/approval calls. Tests compile the actual Solidity, deploy all three contracts to an isolated local Anvil chain, exercise transfers, burns, permit/replay protection, Genesis metadata, monotonic anchoring, and authenticated Ludus HTTP receipt verification. They also check code fingerprint mismatches, confirmations, unrelated receipts and dry-run exports. These tests send no public-chain transactions. The older Foundry unit tests are retained but are not part of `npm test`.
 
 ## Optional Sepolia deployment
 
-Deployment is a separate wallet action. Choose and verify a treasury (for example, a Safe on Sepolia with ERC-721 receiver support), retain its control credentials privately, and fund the deployment account with testnet ETH. The script permits Sepolia (11155111) and local development (31337) only. Outside a local chain, the treasury must already contain contract code. It receives the entire initial token supply and Genesis NFT.
+Scope: signed Chronicle proofs plus optional **testnet** anchoring. Payments remain disabled. There is no token sale, and the script sends no transfer, approval or permit transaction. Its only transactions are the three contract deployments.
 
-The Foundry deployment script uses `forge-std`; install the dependencies in this directory if using Forge:
+Deployment is a separate wallet action that you run on your own machine. The script `script/deploy-sepolia.mjs`:
+- uses the same pinned compiler settings as the tests;
+- refuses every chain except Sepolia (11155111);
+- only simulates unless `--broadcast` is passed;
+- never prints the key or the RPC URL.
+
+### What you need (you do these yourself)
+
+1. **A fresh deployer account used only for testnets.** Create a new account in your wallet and export its private key only into the local `.env` file below. Never reuse a key that holds mainnet funds. Never paste it into chat, an issue, a screenshot or a shell command.
+2. **Sepolia test ETH** for that account from a Sepolia faucet. Deploying all three contracts costs a few million gas, and the simulation prints an upper bound.
+3. **An RPC URL**, for example a free Alchemy/Infura/QuickNode Sepolia HTTPS endpoint. Treat it as private.
+4. **A treasury address.** It receives the whole initial PCHX supply and Genesis #1. A Sepolia Safe is preferred. For a plain address, set `PEACHEX_ALLOW_EOA_TREASURY=true`.
+5. **An Etherscan API key** (free, API v2) for source verification.
+
+### Steps
+
+From the repository root, with Node 24, run `npm ci`. On Windows, run `npm ci --ignore-scripts`, then `TARGET_TOOL=anvil node node_modules/@foundry-rs/anvil/postinstall.mjs` in Git Bash.
 
 ```sh
-forge install OpenZeppelin/openzeppelin-contracts@v5.7.0
-forge install foundry-rs/forge-std@v1.9.7
+cp contracts/peachex/.env.example contracts/peachex/.env   # then fill it in with an editor
+npm test                                                   # local tests only, no public chain
+
+# 1. Simulate: checks chain, balance, treasury and estimated cost. Sends nothing.
+node --env-file=contracts/peachex/.env contracts/peachex/script/deploy-sepolia.mjs
+
+# 2. Deploy. Writes contracts/peachex/deployments/sepolia.json and prints the backend settings.
+node --env-file=contracts/peachex/.env contracts/peachex/script/deploy-sepolia.mjs --broadcast
+
+# 3. Verify source on Etherscan. It first re-checks on-chain code against the recorded fingerprints.
+node --env-file=contracts/peachex/.env contracts/peachex/script/deploy-sepolia.mjs verify
 ```
 
-Set `SEPOLIA_RPC_URL` and `TREASURY` privately. Use an encrypted Foundry account or hardware wallet; never put a private key in source, environment examples, shell arguments or screenshots. First simulate (without `--broadcast`):
+Check the token, Genesis and anchor addresses on https://sepolia.etherscan.io against `deployments/sepolia.json`. The **runtime code fingerprints** in that file are keccak256 of the code actually deployed (`eth_getCode`). Constructor immutables make a compiler-artifact hash insufficient. You can commit `deployments/sepolia.json`: it holds only public addresses, hashes and constructor arguments. Afterwards, delete the key from `.env` or empty the deployer account.
 
-```sh
-forge script script/Deploy.s.sol:Deploy --rpc-url "$SEPOLIA_RPC_URL" --account peachex-deployer --sender <deployment-account-address>
-```
-
-Review the treasury, chain, simulation and contract addresses before explicitly broadcasting that same script with `--broadcast`. This repository does not broadcast automatically. Verify all deployed source contracts in the explorer using the pinned settings. Check the deployment log's token, Genesis and anchor addresses against receipts and the explorer.
-
-Record **keccak256 of the actual deployed runtime bytecode** for token and anchor after confirming their addresses and constructor values. Constructor immutables mean a generic compiler artifact hash is insufficient. The script prints these fingerprints after simulation/broadcast; confirm them against `eth_getCode` from the actual network. Do not copy local simulation addresses or hashes into production configuration.
+The older Foundry script `script/Deploy.s.sol` remains as an alternative (`forge script ... --account <encrypted keystore>`, simulate first, then `--broadcast`). It needs `forge install OpenZeppelin/openzeppelin-contracts@v5.7.0 foundry-rs/forge-std@v1.9.7`.
 
 ## Enable the optional integration
 

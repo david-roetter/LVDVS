@@ -9,3 +9,40 @@ services:
     buildCommand: node sites/company/build.mjs
     staticPublishPath: public
     autoDeployTrigger: commit
+
+  # Live game with durable storage. See MIGRATION.md before applying anything here.
+  # The service name must stay "ludus-chronicle" so it keeps https://ludus-chronicle.onrender.com/,
+  # which players' recovery codes depend on. Upgrade the EXISTING service in place (plan + disk);
+  # do not let a Blueprint sync create a second service, which would get a different URL.
+  - type: web
+    name: ludus-chronicle
+    runtime: node
+    plan: starter # Paid instance: disks are not available on the free plan, and it does not spin down.
+    repo: https://github.com/david-roetter/LVDVS
+    branch: main
+    rootDir: backend
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /ready
+    autoDeployTrigger: off # Deploy the live game manually after checking MIGRATION.md.
+    disk:
+      name: ludus-data
+      mountPath: /data
+      sizeGB: 1
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      - key: NODE_ENV
+        value: production
+      - key: LUDUS_DATA_DIR
+        value: /data
+      - key: LUDUS_REQUIRE_SIGNING_KEY
+        value: "true"
+      - key: LUDUS_SIGNING_KEY # base64 PEM from `node scripts/backup-tool.mjs signing-key backup.json`
+        sync: false
+      - key: LUDUS_BACKUP_TOKEN
+        sync: false
+      - key: LUDUS_AI_ENABLED
+        value: "false"
+      - key: PEACHEX_MODE
+        value: disabled

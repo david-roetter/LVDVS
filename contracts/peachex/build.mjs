@@ -5,19 +5,34 @@ import solc from 'solc';
 
 const directory = fileURLToPath(new URL('./', import.meta.url));
 const root = resolve(directory, '../..');
-export async function compileContracts() {
+const settings = { optimizer: { enabled: true, runs: 200 }, evmVersion: 'cancun',
+  outputSelection: { '*': { '*': ['abi', 'evm.bytecode.object', 'evm.deployedBytecode.object'] } } };
+async function readSources() {
   const sources = {};
   for (const name of await readdir(resolve(directory, 'src'))) {
     if (name.endsWith('.sol')) sources[name] = { content: await readFile(resolve(directory, 'src', name), 'utf8') };
   }
-  const output = JSON.parse(solc.compile(JSON.stringify({ language: 'Solidity', sources, settings: {
-    optimizer: { enabled: true, runs: 200 }, evmVersion: 'cancun',
-    outputSelection: { '*': { '*': ['abi', 'evm.bytecode.object', 'evm.deployedBytecode.object'] } }
-  } }), { import: (name) => {
-    if (!name.startsWith('@openzeppelin/contracts/') || name.includes('..')) return { error: 'Unsupported import' };
-    // Compiler import callbacks are synchronous.
-    try { return { contents: readImport(name) }; } catch { return { error: 'Missing pinned dependency: ' + name }; }
-  } }));
+  return sources;
+}
+function resolveImport(name) {
+  if (!name.startsWith('@openzeppelin/contracts/') || name.includes('..')) return { error: 'Unsupported import' };
+  // Compiler import callbacks are synchronous.
+  try { return { contents: readImport(name) }; } catch { return { error: 'Missing pinned dependency: ' + name }; }
+}
+/** Solidity standard JSON input with every imported source inlined, as block explorers expect it. */
+export async function verificationInput() {
+  const sources = await readSources(), imported = {};
+  solc.compile(JSON.stringify({ language: 'Solidity', sources, settings: { ...settings, outputSelection: {} } }), { import: (name) => {
+    const result = resolveImport(name);
+    if (result.contents) imported[name] = { content: result.contents };
+    return result;
+  } });
+  return { language: 'Solidity', sources: { ...sources, ...imported }, settings };
+}
+export const compilerVersion = () => 'v' + solc.version().replace(/\.Emscripten.*$/, '');
+export async function compileContracts() {
+  const sources = await readSources();
+  const output = JSON.parse(solc.compile(JSON.stringify({ language: 'Solidity', sources, settings }), { import: resolveImport }));
   const errors = (output.errors || []).filter(error => error.severity === 'error');
   if (errors.length) throw new Error(errors.map(error => error.formattedMessage).join('\n'));
   const artifacts = {};

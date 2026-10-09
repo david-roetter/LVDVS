@@ -1,6 +1,6 @@
 import { chmod, mkdir, readFile, writeFile, rename, open, rm, stat, unlink, readdir } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
-import { generateKeyPairSync, randomBytes, randomUUID, createPublicKey } from 'node:crypto';
+import { generateKeyPairSync, randomBytes, randomUUID, createPrivateKey, createPublicKey } from 'node:crypto';
 import { setTimeout as delay } from 'node:timers/promises';
 import { appendSignedEvent, createGladiator, gameError, sha256, resolveEncounter, verifyChronicle, prepareCommitment, verifyEncounter } from './domain.js';
 
@@ -11,9 +11,27 @@ function configuredEventLimit() {
   return Number.isInteger(value) && value >= 100 && value <= 5000 ? value : 1000;
 }
 
+function publicKeyPem(privateKeyPem) {
+  return createPublicKey(privateKeyPem).export({ type: 'spki', format: 'pem' });
+}
+
+/** Accepts an Ed25519 PKCS#8 private key as PEM or as single-line base64 of that PEM. */
+export function parseSigningKey(value) {
+  const text = String(value).trim();
+  // Some dashboards store multi-line values with literal "\n" sequences.
+  const pem = text.startsWith('-----BEGIN') ? text.replace(/\\n/g, '\n') : Buffer.from(text, 'base64').toString('utf8');
+  let key;
+  try { key = createPrivateKey(pem); }
+  catch { throw new Error('LUDUS_SIGNING_KEY is not a valid PEM private key (raw PEM or base64-encoded PEM).'); }
+  if (key.asymmetricKeyType !== 'ed25519') throw new Error('LUDUS_SIGNING_KEY must be an Ed25519 key.');
+  return key.export({ type: 'pkcs8', format: 'pem' });
+}
+
 export class GameStore {
-  constructor(directory) {
+  constructor(directory, { signingKey = process.env.LUDUS_SIGNING_KEY, requireSigningKey = process.env.LUDUS_REQUIRE_SIGNING_KEY === 'true' } = {}) {
     this.directory = resolve(directory);
+    this.configuredKey = signingKey ? parseSigningKey(signingKey) : null;
+    this.requireConfiguredKey = requireSigningKey;
     this.queues = new Map();
     this.ready = this.initialize();
   }
@@ -21,19 +39,37 @@ export class GameStore {
     await mkdir(this.directory, { recursive: true, mode: 0o700 });
     await chmod(this.directory, 0o700);
     const keyPath = join(this.directory, 'signing-key.pem');
-    try { this.privateKey = await readFile(keyPath, 'utf8'); }
-    catch (error) {
-      if (error.code !== 'ENOENT') throw error;
-      const keys = generateKeyPairSync('ed25519');
-      const pem = keys.privateKey.export({ type: 'pkcs8', format: 'pem' });
-      try { await writeFile(keyPath, pem, { flag: 'wx', mode: 0o600 }); this.privateKey = pem; }
-      catch (writeError) {
-        if (writeError.code !== 'EEXIST') throw writeError;
-        this.privateKey = await readFile(keyPath, 'utf8');
+    if (this.configuredKey) {
+      // The environment key wins. A key file left on the disk must be the same key,
+      // otherwise existing Chronicles would fail verification after a restart.
+      try {
+        const stored = await readFile(keyPath, 'utf8');
+        if (publicKeyPem(stored) !== publicKeyPem(this.configuredKey)) {
+          throw new Error('LUDUS_SIGNING_KEY does not match ' + keyPath + '. Refusing to start with a different signing key.');
+        }
+      } catch (error) { if (error.code !== 'ENOENT') throw error; }
+      this.privateKey = this.configuredKey;
+      this.signingKeySource = 'environment';
+    } else {
+      if (this.requireConfiguredKey) throw new Error('LUDUS_SIGNING_KEY is required because LUDUS_REQUIRE_SIGNING_KEY=true.');
+      try { this.privateKey = await readFile(keyPath, 'utf8'); }
+      catch (error) {
+        if (error.code !== 'ENOENT') throw error;
+        const keys = generateKeyPairSync('ed25519');
+        const pem = keys.privateKey.export({ type: 'pkcs8', format: 'pem' });
+        try { await writeFile(keyPath, pem, { flag: 'wx', mode: 0o600 }); this.privateKey = pem; }
+        catch (writeError) {
+          if (writeError.code !== 'EEXIST') throw writeError;
+          this.privateKey = await readFile(keyPath, 'utf8');
+        }
       }
+      await chmod(keyPath, 0o600);
+      this.signingKeySource = 'file';
     }
-    await chmod(keyPath, 0o600);
-    this.publicKey = createPublicKey(this.privateKey).export({ type: 'spki', format: 'pem' });
+    this.publicKey = publicKeyPem(this.privateKey);
+  }
+  signingKeyInfo() {
+    return { source: this.signingKeySource, fingerprint: sha256(this.publicKey).slice(0, 16) };
   }
   file(token) {
     if (typeof token !== 'string' || !/^[a-f0-9]{64}$/.test(token)) throw gameError('Reconnect to your ludus.', 401);
@@ -78,6 +114,8 @@ export class GameStore {
     }
   }
   async syncDirectory() {
+    // Windows cannot fsync a directory handle; rename durability is handled by NTFS there.
+    if (process.platform === 'win32') return;
     const directory = await open(this.directory, 'r');
     try { await directory.sync(); } finally { await directory.close(); }
   }

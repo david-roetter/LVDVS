@@ -32,7 +32,10 @@ test('browser, game API, recovery rotation, and protected endpoints work togethe
   assert.match(await page.text(), /LVDVS · Chronicle/);
   assert.equal(page.headers.get('x-content-type-options'), 'nosniff');
   assert.equal((await api('/health')).body.status, 'ok');
-  assert.equal((await api('/ready')).body.storage, 'available');
+  const ready = (await api('/ready')).body;
+  assert.equal(ready.storage, 'available');
+  assert.match(ready.signing_key.fingerprint, /^[a-f0-9]{16}$/);
+  assert.equal(JSON.stringify(ready).includes('PRIVATE'), false);
   assert.equal((await api('/api/admin/backup')).status, 401);
   assert.equal((await api('/api/assistant', { body: { message: 'Hello' } })).status, 503);
   assert.equal((await api('/api/game/state')).status, 401);
