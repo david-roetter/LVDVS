@@ -25,7 +25,7 @@ npm run build
 
 Output is `public/`. It includes the bilingual homepage, `/ludus/`, `/peachex/`, Tidal demo, legal pages, public integration settings, and a build manifest with source hashes and the deployed revision.
 
-The Ludus link continues to https://ludus-chronicle.onrender.com/. Keeping that origin preserves existing browser recovery codes and game sessions. The company-site migration does not restart or replace the live game.
+The Ludus link opens LVDVS 0.4, the Flutter game with the Pompeii campaign (https://lvdvs-story.onrender.com/, source `david-roetter/ludus`). The homepage keeps a second link to Chronicle 2.2 at https://ludus-chronicle.onrender.com/, so existing browser recovery codes and sessions stay reachable; that server is not restarted or replaced.
 
 See [sites/company/README.md](sites/company/README.md) for the existing production hub's source settings. `render.yaml` defines a separate static preview; applying it does not switch the production domain.
 

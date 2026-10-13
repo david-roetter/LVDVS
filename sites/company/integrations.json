@@ -1,7 +1,8 @@
 {
   "ludus": {
-    "url": "https://ludus-chronicle.onrender.com/",
-    "version": "2.2.0"
+    "url": "https://lvdvs-story.onrender.com/",
+    "version": "0.4.0",
+    "previous_url": "https://ludus-chronicle.onrender.com/"
   },
   "peachex": {
     "symbol": "PCHX",

@@ -7,7 +7,7 @@ const source = fileURLToPath(new URL('./', import.meta.url));
 const destination = resolve('public');
 const required = ['index.html', 'style.css', 'impressum.html', 'datenschutz.html', 'robots.txt', 'favicon.svg', 'ludus/index.html', 'peachex/index.html', 'integrations.json', 'tidal/index.html'];
 const integration = JSON.parse(await readFile(resolve(source, 'integrations.json'), 'utf8'));
-if (integration.ludus.url !== 'https://ludus-chronicle.onrender.com/' || integration.peachex.payments_enabled !== false) {
+if (integration.ludus.url !== 'https://lvdvs-story.onrender.com/' || integration.peachex.payments_enabled !== false) {
   throw new Error('Unexpected integration configuration. Review the payment and session flow before enabling it.');
 }
 const files = await Promise.all(required.map(async name => ({ name, bytes: await readFile(resolve(source, name)) })));
