@@ -2,7 +2,7 @@
 
 This directory preserves the current production homepage, contact details, offers, Stripe link, legal pages and Tidal demo.
 
-The homepage links to `/ludus/` and `/peachex/`. The Ludus route opens the existing Chronicle 2.2 server, keeping recovery codes and browser storage on their current origin. The PeachEx preview is a separate temporary game backend, explicitly labelled as a demo. Existing recovery codes stay on the original game server. The homepage copy describes the deployed Chronicle game instead of the separate Flutter season prototype.
+The homepage links to `/ludus/` and `/peachex/`. The Ludus route opens LVDVS 0.4 (the Flutter game with the Pompeii campaign) at https://lvdvs-story.onrender.com/. A second link keeps Chronicle 2.2 and its recovery codes reachable on their original origin. The PeachEx preview is a separate temporary game backend, explicitly labelled as a demo. Existing recovery codes stay on the original game server. 
 
 PeachEx has a dedicated bilingual status page and public `integrations.json`. Token sales and payments stay disabled. The contracts and optional proof/balance integration are tested locally; no verified public-chain deployment is configured. The page does not ask for wallet access or transactions. Existing Stripe bookings remain available.
 
